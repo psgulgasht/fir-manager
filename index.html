@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIR Application Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;600&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy2: #112240;
+    --gold: #c9a84c;
+    --gold2: #f0c866;
+    --cream: #f5f0e8;
+    --red: #c0392b;
+    --green: #1a7a4a;
+    --blue: #1a4f8a;
+    --text: #e8dcc8;
+    --muted: #8a9bb5;
+    --card: #0f1e35;
+    --border: #1e3a5f;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(26,79,138,0.12) 0%, transparent 50%);
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0a1628 0%, #112240 50%, #0d1f3c 100%);
+    border-bottom: 2px solid var(--gold);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .logo-block { display: flex; align-items: center; gap: 16px; }
+
+  .logo-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 16px rgba(201,168,76,0.3);
+    flex-shrink: 0;
+  }
+
+  .logo-text { line-height: 1.2; }
+  .logo-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 900;
+    color: var(--gold2);
+    letter-spacing: 1px;
+  }
+  .logo-sub { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+
+  .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  .backup-status {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(26,122,74,0.15);
+    border: 1px solid rgba(26,122,74,0.4);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 11px;
+    color: #4ade80;
+  }
+  .backup-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #4ade80;
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:0.5;transform:scale(0.8);}
+  }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: var(--navy);
+    box-shadow: 0 4px 12px rgba(201,168,76,0.3);
+  }
+  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.4); }
+  .btn-outline {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+  }
+  .btn-outline:hover { background: rgba(201,168,76,0.1); }
+  .btn-danger { background: rgba(192,57,43,0.2); color: #ff6b6b; border: 1px solid rgba(192,57,43,0.4); }
+  .btn-danger:hover { background: rgba(192,57,43,0.35); }
+  .btn-success { background: rgba(26,122,74,0.2); color: #4ade80; border: 1px solid rgba(26,122,74,0.4); }
+  .btn-success:hover { background: rgba(26,122,74,0.35); }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+
+  /* STATS BAR */
+  .stats-bar {
+    max-width: 1400px;
+    margin: 24px auto 0;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-icon { font-size: 22px; }
+  .stat-num { font-size: 24px; font-weight: 600; color: var(--gold2); line-height: 1; }
+  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+  /* TOOLBAR */
+  .toolbar {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 0 24px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-wrap input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px 10px 38px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--gold); }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
+
+  select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+  }
+  select:focus { border-color: var(--gold); }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1400px;
+    margin: 0 auto 40px;
+    padding: 0 24px;
+  }
+
+  .table-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: linear-gradient(135deg, #0d1f3c, #112240); }
+  th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(30,58,95,0.5);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: rgba(201,168,76,0.04); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td {
+    padding: 14px 16px;
+    font-size: 12px;
+    vertical-align: middle;
+  }
+
+  .fir-num {
+    font-weight: 700;
+    color: var(--gold2);
+    font-size: 13px;
+  }
+
+  .badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: inline-block;
+  }
+  .badge-pending { background: rgba(234,179,8,0.15); color: #fbbf24; border: 1px solid rgba(234,179,8,0.3); }
+  .badge-filed   { background: rgba(26,79,138,0.25); color: #60a5fa; border: 1px solid rgba(26,79,138,0.5); }
+  .badge-completed { background: rgba(26,122,74,0.2); color: #4ade80; border: 1px solid rgba(26,122,74,0.4); }
+
+  .category-tag {
+    background: rgba(201,168,76,0.1);
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 10px;
+  }
+
+  .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .icon-btn {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .icon-btn:hover { transform: scale(1.1); }
+  .ib-view   { background: rgba(26,79,138,0.3); color: #60a5fa; }
+  .ib-edit   { background: rgba(234,179,8,0.15); color: #fbbf24; }
+  .ib-del    { background: rgba(192,57,43,0.2); color: #ff6b6b; }
+  .ib-filed  { background: rgba(26,79,138,0.25); color: #60a5fa; }
+  .ib-done   { background: rgba(26,122,74,0.2); color: #4ade80; }
+  .ib-pend   { background: rgba(234,179,8,0.15); color: #fbbf24; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state .e-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 14px; }
+
+  /* MODAL */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .overlay.active { display: flex; }
+
+  .modal {
+    background: var(--navy2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--gold2);
+  }
+  .modal-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    border: none; cursor: pointer;
+    color: var(--muted); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: rgba(192,57,43,0.2); color: #ff6b6b; }
+
+  .modal-body { padding: 24px 28px; }
+  .modal-footer { padding: 16px 28px 24px; display: flex; gap: 10px; justify-content: flex-end; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .form-full { grid-column: 1 / -1; }
+
+  .form-group label {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    margin-bottom: 7px;
+  }
+  .form-group label .req { color: #ff6b6b; margin-left: 2px; }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: rgba(10,22,40,0.8);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+  }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  /* VIEW MODAL */
+  .view-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .view-field { }
+  .view-field .vf-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .view-field .vf-val {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .view-full { grid-column: 1 / -1; }
+  .view-divider {
+    grid-column: 1/-1;
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 4px 0;
+  }
+
+  /* BACKUP MODAL */
+  .backup-card {
+    background: rgba(10,22,40,0.6);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .backup-card h4 { color: var(--gold2); font-size: 13px; margin-bottom: 6px; }
+  .backup-card p  { font-size: 11px; color: var(--muted); line-height: 1.7; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--navy2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 12px;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    z-index: 9999;
+    display: flex; align-items: center; gap: 10px;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(26,122,74,0.5); }
+  .toast.error   { border-color: rgba(192,57,43,0.5); }
+
+  /* BACKUP PULSE */
+  .save-pulse {
+    position: fixed;
+    top: 80px; right: 20px;
+    background: rgba(26,122,74,0.9);
+    color: #4ade80;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 11px;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .save-pulse.show { opacity: 1; }
+
+  @media (max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .view-grid  { grid-template-columns: 1fr; }
+    .header-inner { gap: 10px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    th:nth-child(n+4) { display: none; }
+    td:nth-child(n+4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-icon">⚖️</div>
+      <div class="logo-text">
+        <div class="logo-title">FIR Manager Pro</div>
+        <div class="logo-sub">Application Management System</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="backup-status">
+        <div class="backup-dot"></div>
+        <span>Auto-Save ON</span>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="openBackupModal()">💾 Backup</button>
+      <button class="btn btn-gold" onclick="openAddModal()">➕ New Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-icon">📁</div>
+    <div>
+      <div class="stat-num" id="st-total">0</div>
+      <div class="stat-label">Total</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">⏳</div>
+    <div>
+      <div class="stat-num" id="st-pending" style="color:#fbbf24">0</div>
+      <div class="stat-label">Pending</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🗂️</div>
+    <div>
+      <div class="stat-num" id="st-filed" style="color:#60a5fa">0</div>
+      <div class="stat-label">Filed</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">✅</div>
+    <div>
+      <div class="stat-num" id="st-completed" style="color:#4ade80">0</div>
+      <div class="stat-label">Completed</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">💾</div>
+    <div>
+      <div class="stat-num" id="st-saved" style="color:#c9a84c; font-size:11px">--</div>
+      <div class="stat-label">Last Saved</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search FIR number, category, description..." oninput="renderTable()">
+  </div>
+  <select id="filterStatus" onchange="renderTable()">
+    <option value="">All Status</option>
+    <option value="pending">Pending</option>
+    <option value="filed">Filed</option>
+    <option value="completed">Completed</option>
+  </select>
+  <select id="filterCategory" onchange="renderTable()">
+    <option value="">All Categories</option>
+    <option value="Criminal">Criminal</option>
+    <option value="Civil">Civil</option>
+    <option value="Property">Property</option>
+    <option value="Domestic">Domestic</option>
+    <option value="Cyber">Cyber</option>
+    <option value="Traffic">Traffic</option>
+    <option value="Other">Other</option>
+  </select>
+  <button class="btn btn-outline btn-sm" onclick="exportCSV()">📤 Export CSV</button>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>FIR Number</th>
+          <th>Date of Arrival</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Added On</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="formOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">➕ New Application</div>
+      <button class="modal-close" onclick="closeModal('formOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>FIR Number <span class="req">*</span></label>
+          <input type="text" id="f-fir" placeholder="e.g. FIR-2024-001">
+        </div>
+        <div class="form-group">
+          <label>Date of Arrival <span class="req">*</span></label>
+          <input type="date" id="f-doa">
+        </div>
+        <div class="form-group">
+          <label>Category <span class="req">*</span></label>
+          <select id="f-cat">
+            <option value="">Select Category</option>
+            <option>Criminal</option>
+            <option>Civil</option>
+            <option>Property</option>
+            <option>Domestic</option>
+            <option>Cyber</option>
+            <option>Traffic</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="f-status">
+            <option value="pending">Pending</option>
+            <option value="filed">Filed</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label>Description <span class="req">*</span></label>
+          <textarea id="f-desc" placeholder="Enter application details..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Officer Name</label>
+          <input type="text" id="f-officer" placeholder="Assigned officer">
+        </div>
+        <div class="form-group">
+          <label>Station / Department</label>
+          <input type="text" id="f-station" placeholder="Police station or dept.">
+        </div>
+        <div class="form-group form-full">
+          <label>Remarks</label>
+          <textarea id="f-remarks" placeholder="Additional remarks..." style="min-height:60px"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('formOverlay')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveApplication()">💾 Save Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="overlay" id="viewOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📋 Application Details</div>
+      <button class="modal-close" onclick="closeModal('viewOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="view-grid" id="viewBody"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('viewOverlay')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- BACKUP MODAL -->
+<div class="overlay" id="backupOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">💾 Backup & Restore</div>
+      <button class="modal-close" onclick="closeModal('backupOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="backup-card">
+        <h4>🟢 Auto-Save (LocalStorage)</h4>
+        <p>Aapka data automatically browser ke LocalStorage mein save hota rehta hai.<br>
+        Har bar data add/edit/delete karne par <strong>foran save</strong> hota hai.<br>
+        Browser band karne ke baad bhi data <strong>safe rehta hai</strong>.</p>
+      </div>
+      <div class="backup-card">
+        <h4>📤 Export Backup (JSON File)</h4>
+        <p>Poora data ek JSON file mein save kar lo — agar kabhi browser data delete ho ya doosray PC pe le jaana ho.</p>
+        <br>
+        <button class="btn btn-gold btn-sm" onclick="exportJSON()">📥 Download JSON Backup</button>
+      </div>
+      <div class="backup-card">
+        <h4>📥 Import Backup (Restore)</h4>
+        <p>Pehle download ki gayi JSON file se data wapis restore karo. Note: Ye existing data ko replace karega.</p>
+        <br>
+        <input type="file" id="importFile" accept=".json" onchange="importJSON(event)" style="display:none">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('importFile').click()">📂 Choose Backup File</button>
+      </div>
+      <div class="backup-card" style="border-color:rgba(192,57,43,0.3)">
+        <h4 style="color:#ff6b6b">🗑️ Clear All Data</h4>
+        <p>Saara data permanently delete karo. Ye action undo nahi hoga!</p>
+        <br>
+        <button class="btn btn-danger btn-sm" onclick="clearAllData()">⚠️ Clear All Data</button>
+      </div>
+      <div style="text-align:center; padding:10px 0; font-size:11px; color:var(--muted)">
+        Last Saved: <span id="bk-lastSave" style="color:var(--gold)">--</span> &nbsp;|&nbsp;
+        Total Records: <span id="bk-count" style="color:var(--gold)">0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+<!-- SAVE PULSE -->
+<div class="save-pulse" id="savePulse">✅ Saved!</div>
+
+<script>
+const STORAGE_KEY = 'fir_manager_data_v1';
+let apps = [];
+let editingId = null;
+
+// ─── STORAGE ────────────────────────────────────────────
+function saveToStorage() {
+  const payload = {
+    apps: apps,
+    savedAt: new Date().toISOString()
+  };
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    updateLastSaved(payload.savedAt);
+    showSavePulse();
+  } catch(e) {
+    showToast('⚠️ Storage save failed!', 'error');
+  }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const payload = JSON.parse(raw);
+    apps = payload.apps || [];
+    updateLastSaved(payload.savedAt);
+    showToast(`✅ ${apps.length} record(s) loaded from backup`, 'success');
+  } catch(e) {
+    apps = [];
+  }
+}
+
+function updateLastSaved(iso) {
+  if (!iso) return;
+  const d = new Date(iso);
+  const str = d.toLocaleString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  const el = document.getElementById('st-saved');
+  if (el) el.textContent = str;
+  const bk = document.getElementById('bk-lastSave');
+  if (bk) bk.textContent = str;
+}
+
+function showSavePulse() {
+  const el = document.getElementById('savePulse');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+// ─── CRUD ────────────────────────────────────────────────
+function generateId() {
+  return 'APP_' + Date.now() + '_' + Math.random().toString(36).substr(2,5).toUpperCase();
+}
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = '➕ New Application';
+  clearForm();
+  document.getElementById('f-doa').value = new Date().toISOString().split('T')[0];
+  document.getElementById('formOverlay').classList.add('active');
+}
+
+function openEditModal(id) {
+  const app = apps.find(a => a.id === id);
+  if (!app) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = '✏️ Edit Application';
+  document.getElementById('f-fir').value     = app.fir || '';
+  document.getElementById('f-doa').value     = app.doa || '';
+  document.getElementById('f-cat').value     = app.category || '';
+  document.getElementById('f-status').value  = app.status || 'pending';
+  document.getElementById('f-desc').value    = app.description || '';
+  document.getElementById('f-officer').value = app.officer || '';
+  document.getElementById('f-station').value = app.station || '';
+  document.getElementById('f-remarks').value = app.remarks || '';
+  document.getElementById('formOverlay').classList.add('active');
+}
+
+function clearForm() {
+  ['f-fir','f-doa','f-cat','f-status','f-desc','f-officer','f-station','f-remarks'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.tagName === 'SELECT' ? (id === 'f-status' ? 'pending' : '') : '';
+  });
+}
+
+function saveApplication() {
+  const fir    = document.getElementById('f-fir').value.trim();
+  const doa    = document.getElementById('f-doa').value;
+  const cat    = document.getElementById('f-cat').value;
+  const status = document.getElementById('f-status').value;
+  const desc   = document.getElementById('f-desc').value.trim();
+
+  if (!fir)  { showToast('⚠️ FIR Number required!', 'error'); return; }
+  if (!doa)  { showToast('⚠️ Date of Arrival required!', 'error'); return; }
+  if (!cat)  { showToast('⚠️ Category required!', 'error'); return; }
+  if (!desc) { showToast('⚠️ Description required!', 'error'); return; }
+
+  if (editingId) {
+    const idx = apps.findIndex(a => a.id === editingId);
+    if (idx !== -1) {
+      apps[idx] = { ...apps[idx], fir, doa, category: cat, status, description: desc,
+        officer: document.getElementById('f-officer').value.trim(),
+        station: document.getElementById('f-station').value.trim(),
+        remarks: document.getElementById('f-remarks').value.trim(),
+        updatedAt: new Date().toISOString()
+      };
+      showToast('✅ Application updated!', 'success');
+    }
+  } else {
+    apps.unshift({
+      id: generateId(),
+      fir, doa, category: cat, status, description: desc,
+      officer: document.getElementById('f-officer').value.trim(),
+      station: document.getElementById('f-station').value.trim(),
+      remarks: document.getElementById('f-remarks').value.trim(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    showToast('✅ Application added & saved!', 'success');
+  }
+
+  saveToStorage();
+  closeModal('formOverlay');
+  renderTable();
+  updateStats();
+}
+
+function deleteApp(id) {
+  if (!confirm('Is application ko delete karna chahte hain?')) return;
+  apps = apps.filter(a => a.id !== id);
+  saveToStorage();
+  renderTable();
+  updateStats();
+  showToast('🗑️ Application deleted', 'error');
+}
+
+function setStatus(id, status) {
+  const idx = apps.findIndex(a => a.id === id);
+  if (idx !== -1) {
+    apps[idx].status = status;
+    apps[idx].updatedAt = new Date().toISOString();
+    saveToStorage();
+    renderTable();
+    updateStats();
+    const labels = { filed:'📁 Filed', completed:'✅ Completed', pending:'⏳ Pending' };
+    showToast(labels[status] + ' marked!', 'success');
+  }
+}
+
+function openViewModal(id) {
+  const app = apps.find(a => a.id === id);
+  if (!app) return;
+
+  const fmt = iso => {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleDateString('en-PK', { day:'2-digit', month:'long', year:'numeric' }); }
+    catch(e) { return iso; }
+  };
+
+  const badgeMap = { pending:'badge-pending', filed:'badge-filed', completed:'badge-completed' };
+  const statusLabel = (app.status||'pending').charAt(0).toUpperCase() + (app.status||'pending').slice(1);
+
+  document.getElementById('viewBody').innerHTML = `
+    <div class="view-field"><div class="vf-label">FIR Number</div><div class="vf-val fir-num">${app.fir}</div></div>
+    <div class="view-field"><div class="vf-label">Date of Arrival</div><div class="vf-val">${fmt(app.doa)}</div></div>
+    <div class="view-field"><div class="vf-label">Category</div><div class="vf-val"><span class="category-tag">${app.category||'—'}</span></div></div>
+    <div class="view-field"><div class="vf-label">Status</div><div class="vf-val"><span class="badge ${badgeMap[app.status]||'badge-pending'}">${statusLabel}</span></div></div>
+    <hr class="view-divider">
+    <div class="view-field view-full"><div class="vf-label">Description</div><div class="vf-val" style="line-height:1.7">${app.description||'—'}</div></div>
+    <hr class="view-divider">
+    <div class="view-field"><div class="vf-label">Officer</div><div class="vf-val">${app.officer||'—'}</div></div>
+    <div class="view-field"><div class="vf-label">Station / Department</div><div class="vf-val">${app.station||'—'}</div></div>
+    <div class="view-field view-full"><div class="vf-label">Remarks</div><div class="vf-val">${app.remarks||'—'}</div></div>
+    <hr class="view-divider">
+    <div class="view-field"><div class="vf-label">Created On</div><div class="vf-val" style="font-size:11px;color:var(--muted)">${fmt(app.createdAt)}</div></div>
+    <div class="view-field"><div class="vf-label">Last Updated</div><div class="vf-val" style="font-size:11px;color:var(--muted)">${fmt(app.updatedAt)}</div></div>
+  `;
+  document.getElementById('viewOverlay').classList.add('active');
+}
+
+// ─── RENDER ──────────────────────────────────────────────
+function renderTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const statusF = document.getElementById('filterStatus').value;
+  const catF    = document.getElementById('filterCategory').value;
+
+  let filtered = apps.filter(a => {
+    const matchS = !statusF || a.status === statusF;
+    const matchC = !catF    || a.category === catF;
+    const matchQ = !search  || [a.fir, a.category, a.description, a.officer, a.station].join(' ').toLowerCase().includes(search);
+    return matchS && matchC && matchQ;
+  });
+
+  const tbody = document.getElementById('tableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="e-icon">📭</div><p>Koi record nahi mila — "New Application" se add karein</p></div></td></tr>`;
+    return;
+  }
+
+  const badgeMap = { pending:'badge-pending', filed:'badge-filed', completed:'badge-completed' };
+  const fmtDate = iso => { try { return new Date(iso).toLocaleDateString('en-PK',{day:'2-digit',month:'short',year:'numeric'}); } catch(e){ return iso||'—'; } };
+
+  tbody.innerHTML = filtered.map((a, i) => {
+    const status = a.status || 'pending';
+    const label  = status.charAt(0).toUpperCase() + status.slice(1);
+    return `
+    <tr>
+      <td style="color:var(--muted);font-size:11px">${i+1}</td>
+      <td class="fir-num">${a.fir}</td>
+      <td style="color:var(--muted)">${fmtDate(a.doa)}</td>
+      <td><span class="category-tag">${a.category||'—'}</span></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted)" title="${a.description}">${a.description||'—'}</td>
+      <td><span class="badge ${badgeMap[status]}">${label}</span></td>
+      <td style="color:var(--muted);font-size:11px">${fmtDate(a.createdAt)}</td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn ib-view"  onclick="openViewModal('${a.id}')" title="View">👁️</button>
+          <button class="icon-btn ib-edit"  onclick="openEditModal('${a.id}')" title="Edit">✏️</button>
+          ${status!=='filed'     ? `<button class="icon-btn ib-filed" onclick="setStatus('${a.id}','filed')" title="Mark Filed">🗂️</button>` : ''}
+          ${status!=='completed' ? `<button class="icon-btn ib-done"  onclick="setStatus('${a.id}','completed')" title="Complete">✅</button>` : ''}
+          ${status!=='pending'   ? `<button class="icon-btn ib-pend"  onclick="setStatus('${a.id}','pending')" title="Pending">⏳</button>` : ''}
+          <button class="icon-btn ib-del"  onclick="deleteApp('${a.id}')" title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('st-total').textContent     = apps.length;
+  document.getElementById('st-pending').textContent   = apps.filter(a=>a.status==='pending').length;
+  document.getElementById('st-filed').textContent     = apps.filter(a=>a.status==='filed').length;
+  document.getElementById('st-completed').textContent = apps.filter(a=>a.status==='completed').length;
+  document.getElementById('bk-count').textContent     = apps.length;
+}
+
+// ─── BACKUP / RESTORE ───────────────────────────────────
+function openBackupModal() {
+  document.getElementById('bk-count').textContent = apps.length;
+  document.getElementById('backupOverlay').classList.add('active');
+}
+
+function exportJSON() {
+  const data = JSON.stringify({ apps, exportedAt: new Date().toISOString(), version: '1.0' }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `FIR_Backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 Backup file downloaded!', 'success');
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.apps || !Array.isArray(data.apps)) throw new Error('Invalid format');
+      if (!confirm(`${data.apps.length} records found. Existing data replace hoga. Continue?`)) return;
+      apps = data.apps;
+      saveToStorage();
+      renderTable();
+      updateStats();
+      showToast(`✅ ${apps.length} records restored!`, 'success');
+      closeModal('backupOverlay');
+    } catch(err) {
+      showToast('❌ Invalid backup file!', 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function exportCSV() {
+  if (apps.length === 0) { showToast('⚠️ No data to export!', 'error'); return; }
+  const headers = ['FIR Number','Date of Arrival','Category','Status','Description','Officer','Station','Remarks','Created On'];
+  const fmt = iso => { try { return new Date(iso).toLocaleDateString('en-PK'); } catch(e){ return iso||''; } };
+  const rows = apps.map(a => [
+    a.fir, fmt(a.doa), a.category, a.status, `"${(a.description||'').replace(/"/g,'""')}"`,
+    a.officer, a.station, `"${(a.remarks||'').replace(/"/g,'""')}"`, fmt(a.createdAt)
+  ]);
+  const csv  = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `FIR_Export_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📤 CSV exported!', 'success');
+}
+
+function clearAllData() {
+  if (!confirm('Are you sure? Saara data permanently delete hoga!')) return;
+  apps = [];
+  localStorage.removeItem(STORAGE_KEY);
+  renderTable();
+  updateStats();
+  showToast('🗑️ All data cleared', 'error');
+  closeModal('backupOverlay');
+}
+
+// ─── UTILS ───────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.overlay').forEach(el => {
+  el.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('active');
+  });
+});
+
+// ─── INIT ────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  loadFromStorage();
+  renderTable();
+  updateStats();
+});
+
+// Extra safety: save on page unload
+window.addEventListener('beforeunload', () => {
+  if (apps.length > 0) saveToStorage();
+});
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBuIQ6jWPRgZDaS6AQcfZfubVBFf4GpLOg",
+  authDomain: "fir-manager-7b61c.firebaseapp.com",
+  projectId: "fir-manager-7b61c",
+  storageBucket: "fir-manager-7b61c.firebasestorage.app",
+  messagingSenderId: "611991212049",
+  appId: "1:611991212049:web:4f62dd74177df303fc61b0",
+  measurementId: "G-C9M5W0HEBN"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const ref = doc(db,"fir_data","main");
+
+async function cloudLoad(){
+ try{
+   const snap = await getDoc(ref);
+   if(snap.exists()){
+     window.apps = snap.data().apps || [];
+   }else{
+     window.apps = [];
+   }
+   if(window.renderTable) renderTable();
+   if(window.updateStats) updateStats();
+ }catch(e){
+   console.log("cloud load error",e);
+ }
+}
+
+async function cloudSave(){
+ try{
+   await setDoc(ref,{apps:window.apps || []});
+ }catch(e){
+   console.log("cloud save error",e);
+ }
+}
+
+window.addEventListener("load",()=>{
+ setTimeout(cloudLoad,1000);
+});
+
+window.cloudSave = cloudSave;
+
+const oldSave = window.saveToStorage;
+window.saveToStorage = function(){
+ if(oldSave) oldSave();
+ cloudSave();
+};
+
+</script>
+
+</body>
+</html>
