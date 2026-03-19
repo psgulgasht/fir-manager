@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FIR Application Management System</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;600&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --navy: #0a1628;
@@ -29,7 +29,7 @@
     color: var(--text);
     font-family: 'IBM Plex Mono', monospace;
     min-height: 100vh;
-    background-image: 
+    background-image:
       radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.06) 0%, transparent 50%),
       radial-gradient(ellipse at 80% 90%, rgba(26,79,138,0.12) 0%, transparent 50%);
   }
@@ -44,7 +44,6 @@
     z-index: 100;
     box-shadow: 0 4px 24px rgba(0,0,0,0.5);
   }
-
   .header-inner {
     max-width: 1400px;
     margin: 0 auto;
@@ -55,9 +54,7 @@
     gap: 16px;
     flex-wrap: wrap;
   }
-
   .logo-block { display: flex; align-items: center; gap: 16px; }
-
   .logo-icon {
     width: 52px; height: 52px;
     background: linear-gradient(135deg, var(--gold), var(--gold2));
@@ -67,7 +64,6 @@
     box-shadow: 0 4px 16px rgba(201,168,76,0.3);
     flex-shrink: 0;
   }
-
   .logo-text { line-height: 1.2; }
   .logo-title {
     font-family: 'Playfair Display', serif;
@@ -79,24 +75,28 @@
 
   .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
-  .backup-status {
+  /* Cloud sync status */
+  .sync-status {
     display: flex; align-items: center; gap: 8px;
-    background: rgba(26,122,74,0.15);
-    border: 1px solid rgba(26,122,74,0.4);
     border-radius: 8px;
     padding: 8px 14px;
     font-size: 11px;
-    color: #4ade80;
+    transition: all 0.3s;
   }
-  .backup-dot {
+  .sync-status.synced   { background: rgba(26,122,74,0.15); border: 1px solid rgba(26,122,74,0.4); color: #4ade80; }
+  .sync-status.syncing  { background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.4); color: var(--gold2); }
+  .sync-status.offline  { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.4); color: #ff6b6b; }
+  .sync-dot {
     width: 8px; height: 8px; border-radius: 50%;
-    background: #4ade80;
-    animation: pulse-dot 2s infinite;
+    background: currentColor;
   }
+  .sync-dot.pulse { animation: pulse-dot 2s infinite; }
   @keyframes pulse-dot {
     0%,100%{opacity:1;transform:scale(1);}
     50%{opacity:0.5;transform:scale(0.8);}
   }
+  .spin { animation: spin 1s linear infinite; display:inline-block; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
   .btn {
     padding: 10px 18px;
@@ -116,16 +116,10 @@
     box-shadow: 0 4px 12px rgba(201,168,76,0.3);
   }
   .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.4); }
-  .btn-outline {
-    background: transparent;
-    color: var(--gold);
-    border: 1px solid var(--gold);
-  }
+  .btn-outline { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
   .btn-outline:hover { background: rgba(201,168,76,0.1); }
   .btn-danger { background: rgba(192,57,43,0.2); color: #ff6b6b; border: 1px solid rgba(192,57,43,0.4); }
   .btn-danger:hover { background: rgba(192,57,43,0.35); }
-  .btn-success { background: rgba(26,122,74,0.2); color: #4ade80; border: 1px solid rgba(26,122,74,0.4); }
-  .btn-success:hover { background: rgba(26,122,74,0.35); }
   .btn-sm { padding: 6px 12px; font-size: 11px; }
 
   /* STATS BAR */
@@ -137,7 +131,6 @@
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 14px;
   }
-
   .stat-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -161,7 +154,6 @@
     align-items: center;
     flex-wrap: wrap;
   }
-
   .search-wrap { position: relative; flex: 1; min-width: 200px; }
   .search-wrap input {
     width: 100%;
@@ -197,7 +189,6 @@
     margin: 0 auto 40px;
     padding: 0 24px;
   }
-
   .table-container {
     background: var(--card);
     border: 1px solid var(--border);
@@ -205,7 +196,6 @@
     overflow: hidden;
     box-shadow: var(--shadow);
   }
-
   table { width: 100%; border-collapse: collapse; }
   thead { background: linear-gradient(135deg, #0d1f3c, #112240); }
   th {
@@ -218,25 +208,15 @@
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
-
   tbody tr {
     border-bottom: 1px solid rgba(30,58,95,0.5);
     transition: background 0.15s;
   }
   tbody tr:hover { background: rgba(201,168,76,0.04); }
   tbody tr:last-child { border-bottom: none; }
+  td { padding: 14px 16px; font-size: 12px; vertical-align: middle; }
 
-  td {
-    padding: 14px 16px;
-    font-size: 12px;
-    vertical-align: middle;
-  }
-
-  .fir-num {
-    font-weight: 700;
-    color: var(--gold2);
-    font-size: 13px;
-  }
+  .fir-num { font-weight: 700; color: var(--gold2); font-size: 13px; }
 
   .badge {
     padding: 4px 10px;
@@ -247,9 +227,9 @@
     text-transform: uppercase;
     display: inline-block;
   }
-  .badge-pending { background: rgba(234,179,8,0.15); color: #fbbf24; border: 1px solid rgba(234,179,8,0.3); }
-  .badge-filed   { background: rgba(26,79,138,0.25); color: #60a5fa; border: 1px solid rgba(26,79,138,0.5); }
-  .badge-completed { background: rgba(26,122,74,0.2); color: #4ade80; border: 1px solid rgba(26,122,74,0.4); }
+  .badge-pending  { background: rgba(234,179,8,0.15); color: #fbbf24; border: 1px solid rgba(234,179,8,0.3); }
+  .badge-filed    { background: rgba(26,79,138,0.25); color: #60a5fa; border: 1px solid rgba(26,79,138,0.5); }
+  .badge-completed{ background: rgba(26,122,74,0.2);  color: #4ade80; border: 1px solid rgba(26,122,74,0.4); }
 
   .category-tag {
     background: rgba(201,168,76,0.1);
@@ -271,18 +251,14 @@
     transition: all 0.15s;
   }
   .icon-btn:hover { transform: scale(1.1); }
-  .ib-view   { background: rgba(26,79,138,0.3); color: #60a5fa; }
-  .ib-edit   { background: rgba(234,179,8,0.15); color: #fbbf24; }
-  .ib-del    { background: rgba(192,57,43,0.2); color: #ff6b6b; }
-  .ib-filed  { background: rgba(26,79,138,0.25); color: #60a5fa; }
-  .ib-done   { background: rgba(26,122,74,0.2); color: #4ade80; }
-  .ib-pend   { background: rgba(234,179,8,0.15); color: #fbbf24; }
+  .ib-view  { background: rgba(26,79,138,0.3);  color: #60a5fa; }
+  .ib-edit  { background: rgba(234,179,8,0.15); color: #fbbf24; }
+  .ib-del   { background: rgba(192,57,43,0.2);  color: #ff6b6b; }
+  .ib-filed { background: rgba(26,79,138,0.25); color: #60a5fa; }
+  .ib-done  { background: rgba(26,122,74,0.2);  color: #4ade80; }
+  .ib-pend  { background: rgba(234,179,8,0.15); color: #fbbf24; }
 
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-  }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
   .empty-state .e-icon { font-size: 48px; margin-bottom: 16px; }
   .empty-state p { font-size: 14px; }
 
@@ -315,17 +291,12 @@
     from { transform: translateY(30px); opacity: 0; }
     to   { transform: translateY(0); opacity: 1; }
   }
-
   .modal-header {
     padding: 24px 28px 20px;
     border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
   }
-  .modal-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    color: var(--gold2);
-  }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold2); }
   .modal-close {
     width: 32px; height: 32px;
     border-radius: 8px;
@@ -335,7 +306,6 @@
     display: flex; align-items: center; justify-content: center;
   }
   .modal-close:hover { background: rgba(192,57,43,0.2); color: #ff6b6b; }
-
   .modal-body { padding: 24px 28px; }
   .modal-footer { padding: 16px 28px 24px; display: flex; gap: 10px; justify-content: flex-end; }
 
@@ -351,7 +321,6 @@
     margin-bottom: 7px;
   }
   .form-group label .req { color: #ff6b6b; margin-left: 2px; }
-
   .form-group input,
   .form-group select,
   .form-group textarea {
@@ -376,26 +345,10 @@
 
   /* VIEW MODAL */
   .view-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .view-field { }
-  .view-field .vf-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .view-field .vf-val {
-    font-size: 13px;
-    color: var(--text);
-    font-weight: 500;
-  }
+  .view-field .vf-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 4px; }
+  .view-field .vf-val   { font-size: 13px; color: var(--text); font-weight: 500; }
   .view-full { grid-column: 1 / -1; }
-  .view-divider {
-    grid-column: 1/-1;
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 4px 0;
-  }
+  .view-divider { grid-column: 1/-1; border: none; border-top: 1px solid var(--border); margin: 4px 0; }
 
   /* BACKUP MODAL */
   .backup-card {
@@ -408,6 +361,7 @@
   .backup-card h4 { color: var(--gold2); font-size: 13px; margin-bottom: 6px; }
   .backup-card p  { font-size: 11px; color: var(--muted); line-height: 1.7; }
 
+  /* TOAST */
   .toast {
     position: fixed;
     bottom: 24px; right: 24px;
@@ -428,21 +382,30 @@
   .toast.success { border-color: rgba(26,122,74,0.5); }
   .toast.error   { border-color: rgba(192,57,43,0.5); }
 
-  /* BACKUP PULSE */
-  .save-pulse {
-    position: fixed;
-    top: 80px; right: 20px;
-    background: rgba(26,122,74,0.9);
-    color: #4ade80;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 11px;
-    z-index: 999;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
+  /* Loading overlay */
+  .loading-screen {
+    position: fixed; inset: 0;
+    background: var(--navy);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 9999;
+    gap: 16px;
+    transition: opacity 0.5s;
   }
-  .save-pulse.show { opacity: 1; }
+  .loading-screen.hide { opacity: 0; pointer-events: none; }
+  .loading-logo { font-size: 48px; }
+  .loading-text { color: var(--gold2); font-family: 'Playfair Display', serif; font-size: 22px; }
+  .loading-sub  { color: var(--muted); font-size: 11px; letter-spacing: 2px; }
+  .loading-bar  { width: 200px; height: 3px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .loading-fill { height: 100%; background: var(--gold); border-radius: 3px; animation: fill 1.5s ease forwards; }
+  @keyframes fill { from{width:0} to{width:100%} }
+
+  /* Row highlight animation for new records */
+  @keyframes rowFlash {
+    0%   { background: rgba(201,168,76,0.15); }
+    100% { background: transparent; }
+  }
+  .row-new { animation: rowFlash 1.5s ease; }
 
   @media (max-width: 768px) {
     .form-grid { grid-template-columns: 1fr; }
@@ -456,6 +419,14 @@
 </head>
 <body>
 
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-logo">⚖️</div>
+  <div class="loading-text">FIR Manager Pro</div>
+  <div class="loading-sub">☁️ Connecting to Cloud...</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+</div>
+
 <!-- HEADER -->
 <div class="header">
   <div class="header-inner">
@@ -463,13 +434,13 @@
       <div class="logo-icon">⚖️</div>
       <div class="logo-text">
         <div class="logo-title">FIR Manager Pro</div>
-        <div class="logo-sub">Application Management System</div>
+        <div class="logo-sub">Real-Time Cloud Sync</div>
       </div>
     </div>
     <div class="header-actions">
-      <div class="backup-status">
-        <div class="backup-dot"></div>
-        <span>Auto-Save ON</span>
+      <div class="sync-status syncing" id="syncStatus">
+        <div class="sync-dot pulse"></div>
+        <span id="syncText">Connecting...</span>
       </div>
       <button class="btn btn-outline btn-sm" onclick="openBackupModal()">💾 Backup</button>
       <button class="btn btn-gold" onclick="openAddModal()">➕ New Application</button>
@@ -508,10 +479,10 @@
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon">💾</div>
+    <div class="stat-icon">🌐</div>
     <div>
-      <div class="stat-num" id="st-saved" style="color:#c9a84c; font-size:11px">--</div>
-      <div class="stat-label">Last Saved</div>
+      <div class="stat-num" id="st-sync" style="color:#c9a84c; font-size:11px">--</div>
+      <div class="stat-label">Last Sync</div>
     </div>
   </div>
 </div>
@@ -530,13 +501,8 @@
   </select>
   <select id="filterCategory" onchange="renderTable()">
     <option value="">All Categories</option>
-    <option value="Criminal">Criminal</option>
-    <option value="Civil">Civil</option>
-    <option value="Property">Property</option>
-    <option value="Domestic">Domestic</option>
-    <option value="Cyber">Cyber</option>
-    <option value="Traffic">Traffic</option>
-    <option value="Other">Other</option>
+    <option>Criminal</option><option>Civil</option><option>Property</option>
+    <option>Domestic</option><option>Cyber</option><option>Traffic</option><option>Other</option>
   </select>
   <button class="btn btn-outline btn-sm" onclick="exportCSV()">📤 Export CSV</button>
 </div>
@@ -557,7 +523,9 @@
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="tableBody"></tbody>
+      <tbody id="tableBody">
+        <tr><td colspan="8"><div class="empty-state"><div class="e-icon">☁️</div><p>Cloud se data load ho raha hai...</p></div></td></tr>
+      </tbody>
     </table>
   </div>
 </div>
@@ -583,13 +551,8 @@
           <label>Category <span class="req">*</span></label>
           <select id="f-cat">
             <option value="">Select Category</option>
-            <option>Criminal</option>
-            <option>Civil</option>
-            <option>Property</option>
-            <option>Domestic</option>
-            <option>Cyber</option>
-            <option>Traffic</option>
-            <option>Other</option>
+            <option>Criminal</option><option>Civil</option><option>Property</option>
+            <option>Domestic</option><option>Cyber</option><option>Traffic</option><option>Other</option>
           </select>
         </div>
         <div class="form-group">
@@ -620,7 +583,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('formOverlay')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveApplication()">💾 Save Application</button>
+      <button class="btn btn-gold" id="saveBtn" onclick="saveApplication()">💾 Save Application</button>
     </div>
   </div>
 </div>
@@ -649,33 +612,32 @@
       <button class="modal-close" onclick="closeModal('backupOverlay')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="backup-card">
-        <h4>🟢 Auto-Save (LocalStorage)</h4>
-        <p>Aapka data automatically browser ke LocalStorage mein save hota rehta hai.<br>
-        Har bar data add/edit/delete karne par <strong>foran save</strong> hota hai.<br>
-        Browser band karne ke baad bhi data <strong>safe rehta hai</strong>.</p>
+      <div class="backup-card" style="border-color:rgba(26,122,74,0.3)">
+        <h4>🌐 Cloud Sync (Firebase)</h4>
+        <p>Aapka data <strong>real-time Firebase cloud</strong> mein save hota hai.<br>
+        Teenon PCs pe ek hi waqt data nazar aata hai — koi manual backup ki zaroorat nahi.<br>
+        Internet connection zaroori hai.</p>
       </div>
       <div class="backup-card">
         <h4>📤 Export Backup (JSON File)</h4>
-        <p>Poora data ek JSON file mein save kar lo — agar kabhi browser data delete ho ya doosray PC pe le jaana ho.</p>
+        <p>Emergency backup ke liye — JSON file download kar lo.</p>
         <br>
         <button class="btn btn-gold btn-sm" onclick="exportJSON()">📥 Download JSON Backup</button>
       </div>
       <div class="backup-card">
         <h4>📥 Import Backup (Restore)</h4>
-        <p>Pehle download ki gayi JSON file se data wapis restore karo. Note: Ye existing data ko replace karega.</p>
+        <p>JSON backup file se data restore karo. <strong>Existing cloud data replace hoga.</strong></p>
         <br>
         <input type="file" id="importFile" accept=".json" onchange="importJSON(event)" style="display:none">
         <button class="btn btn-outline btn-sm" onclick="document.getElementById('importFile').click()">📂 Choose Backup File</button>
       </div>
       <div class="backup-card" style="border-color:rgba(192,57,43,0.3)">
         <h4 style="color:#ff6b6b">🗑️ Clear All Data</h4>
-        <p>Saara data permanently delete karo. Ye action undo nahi hoga!</p>
+        <p>Saara cloud data permanently delete karo. <strong>Teeno PCs se data hat jayega!</strong></p>
         <br>
         <button class="btn btn-danger btn-sm" onclick="clearAllData()">⚠️ Clear All Data</button>
       </div>
       <div style="text-align:center; padding:10px 0; font-size:11px; color:var(--muted)">
-        Last Saved: <span id="bk-lastSave" style="color:var(--gold)">--</span> &nbsp;|&nbsp;
         Total Records: <span id="bk-count" style="color:var(--gold)">0</span>
       </div>
     </div>
@@ -684,72 +646,102 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
-<!-- SAVE PULSE -->
-<div class="save-pulse" id="savePulse">✅ Saved!</div>
 
-<script>
-const STORAGE_KEY = 'fir_manager_data_v1';
-let apps = [];
-let editingId = null;
+<!-- ═══════════════════════════════════════════════════════
+     FIREBASE SDK (Modular v10)
+════════════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc,
+         addDoc, updateDoc, deleteDoc,
+         onSnapshot, serverTimestamp,
+         query, orderBy, writeBatch }             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ─── STORAGE ────────────────────────────────────────────
-function saveToStorage() {
-  const payload = {
-    apps: apps,
-    savedAt: new Date().toISOString()
-  };
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    updateLastSaved(payload.savedAt);
-    showSavePulse();
-  } catch(e) {
-    showToast('⚠️ Storage save failed!', 'error');
+// ── YOUR FIREBASE CONFIG ─────────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyBuIQ6jWPRgZDaS6AQcfZfubVBFf4GpLOg",
+  authDomain:        "fir-manager-7b61c.firebaseapp.com",
+  projectId:         "fir-manager-7b61c",
+  storageBucket:     "fir-manager-7b61c.firebasestorage.app",
+  messagingSenderId: "611991212049",
+  appId:             "1:611991212049:web:4f62dd74177df303fc61b0"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getFirestore(fbApp);
+const COL   = collection(db, "fir_applications"); // ← one doc per FIR
+
+// ── STATE ────────────────────────────────────────────────
+let apps      = [];      // local mirror
+let editingId = null;    // Firestore doc id being edited
+let isReady   = false;
+
+// ── SYNC STATUS UI ───────────────────────────────────────
+function setSyncStatus(state, text) {
+  const el  = document.getElementById('syncStatus');
+  const dot = el.querySelector('.sync-dot');
+  const txt = document.getElementById('syncText');
+  el.className = 'sync-status ' + state;
+  dot.className = 'sync-dot' + (state === 'syncing' ? ' pulse' : '');
+  txt.textContent = text;
+}
+
+function updateLastSync() {
+  const now = new Date().toLocaleTimeString('en-PK', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const el = document.getElementById('st-sync');
+  if (el) el.textContent = now;
+}
+
+// ── REAL-TIME LISTENER ───────────────────────────────────
+// onSnapshot listens for ANY change in the collection — from any PC!
+const q = query(COL, orderBy("createdAt", "desc"));
+
+onSnapshot(q,
+  (snapshot) => {
+    const prevIds  = new Set(apps.map(a => a.id));
+    apps = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Highlight newly added rows
+    const newIds = apps.filter(a => !prevIds.has(a.id)).map(a => a.id);
+    window._newIds = newIds;
+
+    renderTable();
+    updateStats();
+    updateLastSync();
+    setSyncStatus('synced', '🟢 Live Sync ON');
+
+    // Hide loading screen on first snapshot
+    if (!isReady) {
+      isReady = true;
+      const ls = document.getElementById('loadingScreen');
+      ls.classList.add('hide');
+      setTimeout(() => ls.style.display = 'none', 600);
+    }
+  },
+  (error) => {
+    console.error("Firestore error:", error);
+    setSyncStatus('offline', '🔴 Offline');
+    showToast('⚠️ Cloud connection failed!', 'error');
+    // Still hide loading screen
+    if (!isReady) {
+      isReady = true;
+      const ls = document.getElementById('loadingScreen');
+      ls.classList.add('hide');
+      setTimeout(() => ls.style.display = 'none', 600);
+    }
   }
-}
+);
 
-function loadFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const payload = JSON.parse(raw);
-    apps = payload.apps || [];
-    updateLastSaved(payload.savedAt);
-    showToast(`✅ ${apps.length} record(s) loaded from backup`, 'success');
-  } catch(e) {
-    apps = [];
-  }
-}
-
-function updateLastSaved(iso) {
-  if (!iso) return;
-  const d = new Date(iso);
-  const str = d.toLocaleString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-  const el = document.getElementById('st-saved');
-  if (el) el.textContent = str;
-  const bk = document.getElementById('bk-lastSave');
-  if (bk) bk.textContent = str;
-}
-
-function showSavePulse() {
-  const el = document.getElementById('savePulse');
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 1800);
-}
-
-// ─── CRUD ────────────────────────────────────────────────
-function generateId() {
-  return 'APP_' + Date.now() + '_' + Math.random().toString(36).substr(2,5).toUpperCase();
-}
-
-function openAddModal() {
+// ── CRUD ─────────────────────────────────────────────────
+window.openAddModal = function() {
   editingId = null;
   document.getElementById('modalTitle').textContent = '➕ New Application';
   clearForm();
   document.getElementById('f-doa').value = new Date().toISOString().split('T')[0];
   document.getElementById('formOverlay').classList.add('active');
-}
+};
 
-function openEditModal(id) {
+window.openEditModal = function(id) {
   const app = apps.find(a => a.id === id);
   if (!app) return;
   editingId = id;
@@ -763,16 +755,9 @@ function openEditModal(id) {
   document.getElementById('f-station').value = app.station || '';
   document.getElementById('f-remarks').value = app.remarks || '';
   document.getElementById('formOverlay').classList.add('active');
-}
+};
 
-function clearForm() {
-  ['f-fir','f-doa','f-cat','f-status','f-desc','f-officer','f-station','f-remarks'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = el.tagName === 'SELECT' ? (id === 'f-status' ? 'pending' : '') : '';
-  });
-}
-
-function saveApplication() {
+window.saveApplication = async function() {
   const fir    = document.getElementById('f-fir').value.trim();
   const doa    = document.getElementById('f-doa').value;
   const cat    = document.getElementById('f-cat').value;
@@ -784,71 +769,204 @@ function saveApplication() {
   if (!cat)  { showToast('⚠️ Category required!', 'error'); return; }
   if (!desc) { showToast('⚠️ Description required!', 'error'); return; }
 
-  if (editingId) {
-    const idx = apps.findIndex(a => a.id === editingId);
-    if (idx !== -1) {
-      apps[idx] = { ...apps[idx], fir, doa, category: cat, status, description: desc,
-        officer: document.getElementById('f-officer').value.trim(),
-        station: document.getElementById('f-station').value.trim(),
-        remarks: document.getElementById('f-remarks').value.trim(),
-        updatedAt: new Date().toISOString()
-      };
-      showToast('✅ Application updated!', 'success');
-    }
-  } else {
-    apps.unshift({
-      id: generateId(),
-      fir, doa, category: cat, status, description: desc,
-      officer: document.getElementById('f-officer').value.trim(),
-      station: document.getElementById('f-station').value.trim(),
-      remarks: document.getElementById('f-remarks').value.trim(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    showToast('✅ Application added & saved!', 'success');
-  }
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving...';
+  setSyncStatus('syncing', '⏳ Saving...');
 
-  saveToStorage();
-  closeModal('formOverlay');
-  renderTable();
-  updateStats();
-}
-
-function deleteApp(id) {
-  if (!confirm('Is application ko delete karna chahte hain?')) return;
-  apps = apps.filter(a => a.id !== id);
-  saveToStorage();
-  renderTable();
-  updateStats();
-  showToast('🗑️ Application deleted', 'error');
-}
-
-function setStatus(id, status) {
-  const idx = apps.findIndex(a => a.id === id);
-  if (idx !== -1) {
-    apps[idx].status = status;
-    apps[idx].updatedAt = new Date().toISOString();
-    saveToStorage();
-    renderTable();
-    updateStats();
-    const labels = { filed:'📁 Filed', completed:'✅ Completed', pending:'⏳ Pending' };
-    showToast(labels[status] + ' marked!', 'success');
-  }
-}
-
-function openViewModal(id) {
-  const app = apps.find(a => a.id === id);
-  if (!app) return;
-
-  const fmt = iso => {
-    if (!iso) return '—';
-    try { return new Date(iso).toLocaleDateString('en-PK', { day:'2-digit', month:'long', year:'numeric' }); }
-    catch(e) { return iso; }
+  const payload = {
+    fir, doa, category: cat, status, description: desc,
+    officer: document.getElementById('f-officer').value.trim(),
+    station: document.getElementById('f-station').value.trim(),
+    remarks: document.getElementById('f-remarks').value.trim(),
+    updatedAt: serverTimestamp()
   };
 
+  try {
+    if (editingId) {
+      await updateDoc(doc(db, "fir_applications", editingId), payload);
+      showToast('✅ Application updated!', 'success');
+    } else {
+      payload.createdAt = serverTimestamp();
+      await addDoc(COL, payload);
+      showToast('✅ Application saved to cloud!', 'success');
+    }
+    closeModal('formOverlay');
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Save failed: ' + e.message, 'error');
+    setSyncStatus('offline', '🔴 Error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Save Application';
+  }
+};
+
+window.deleteApp = async function(id) {
+  if (!confirm('Is application ko delete karna chahte hain?')) return;
+  setSyncStatus('syncing', '⏳ Deleting...');
+  try {
+    await deleteDoc(doc(db, "fir_applications", id));
+    showToast('🗑️ Application deleted', 'error');
+  } catch(e) {
+    showToast('❌ Delete failed!', 'error');
+  }
+};
+
+window.setStatus = async function(id, status) {
+  setSyncStatus('syncing', '⏳ Updating...');
+  try {
+    await updateDoc(doc(db, "fir_applications", id), {
+      status,
+      updatedAt: serverTimestamp()
+    });
+    const labels = { filed:'📁 Filed', completed:'✅ Completed', pending:'⏳ Pending' };
+    showToast(labels[status] + ' marked!', 'success');
+  } catch(e) {
+    showToast('❌ Update failed!', 'error');
+  }
+};
+
+// ── BACKUP / RESTORE ─────────────────────────────────────
+window.exportJSON = function() {
+  const data = JSON.stringify({ apps, exportedAt: new Date().toISOString(), version: '2.0-cloud' }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `FIR_Backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 Backup file downloaded!', 'success');
+};
+
+window.importJSON = async function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.apps || !Array.isArray(data.apps)) throw new Error('Invalid format');
+      if (!confirm(`${data.apps.length} records found. Cloud data replace hoga. Continue?`)) return;
+
+      setSyncStatus('syncing', '⏳ Restoring...');
+      // Use batch writes for efficiency
+      const CHUNK = 500;
+      for (let i = 0; i < data.apps.length; i += CHUNK) {
+        const batch = writeBatch(db);
+        data.apps.slice(i, i + CHUNK).forEach(app => {
+          const ref = doc(COL);
+          const { id: _id, createdAt, updatedAt, ...rest } = app;
+          batch.set(ref, { ...rest, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        });
+        await batch.commit();
+      }
+      showToast(`✅ ${data.apps.length} records restored to cloud!`, 'success');
+      closeModal('backupOverlay');
+    } catch(err) {
+      showToast('❌ Invalid backup file: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+};
+
+window.clearAllData = async function() {
+  if (!confirm('Are you sure? Teeno PCs ka saara data permanently delete hoga!')) return;
+  if (!confirm('Last chance! Ye undo nahi hoga. Confirm?')) return;
+  setSyncStatus('syncing', '⏳ Clearing...');
+  try {
+    const CHUNK = 500;
+    for (let i = 0; i < apps.length; i += CHUNK) {
+      const batch = writeBatch(db);
+      apps.slice(i, i + CHUNK).forEach(app => batch.delete(doc(db, "fir_applications", app.id)));
+      await batch.commit();
+    }
+    showToast('🗑️ All cloud data cleared', 'error');
+    closeModal('backupOverlay');
+  } catch(e) {
+    showToast('❌ Clear failed: ' + e.message, 'error');
+  }
+};
+
+// ── RENDER ───────────────────────────────────────────────
+window.renderTable = function() {
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const statusF = document.getElementById('filterStatus').value;
+  const catF    = document.getElementById('filterCategory').value;
+
+  let filtered = apps.filter(a => {
+    const matchS = !statusF || a.status === statusF;
+    const matchC = !catF    || a.category === catF;
+    const matchQ = !search  || [a.fir, a.category, a.description, a.officer, a.station].join(' ').toLowerCase().includes(search);
+    return matchS && matchC && matchQ;
+  });
+
+  const tbody = document.getElementById('tableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="e-icon">📭</div><p>Koi record nahi mila</p></div></td></tr>`;
+    return;
+  }
+
+  const badgeMap = { pending:'badge-pending', filed:'badge-filed', completed:'badge-completed' };
+  const fmtDate  = val => {
+    if (!val) return '—';
+    // Firestore Timestamp
+    if (val?.toDate) return val.toDate().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric' });
+    // ISO or date string
+    try { return new Date(val).toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric' }); }
+    catch(e) { return val; }
+  };
+
+  const newIds = window._newIds || [];
+  tbody.innerHTML = filtered.map((a, i) => {
+    const status = a.status || 'pending';
+    const label  = status.charAt(0).toUpperCase() + status.slice(1);
+    const isNew  = newIds.includes(a.id);
+    return `
+    <tr class="${isNew ? 'row-new' : ''}">
+      <td style="color:var(--muted);font-size:11px">${i+1}</td>
+      <td class="fir-num">${a.fir || '—'}</td>
+      <td style="color:var(--muted)">${fmtDate(a.doa)}</td>
+      <td><span class="category-tag">${a.category||'—'}</span></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted)" title="${a.description||''}">${a.description||'—'}</td>
+      <td><span class="badge ${badgeMap[status]||'badge-pending'}">${label}</span></td>
+      <td style="color:var(--muted);font-size:11px">${fmtDate(a.createdAt)}</td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn ib-view"  onclick="openViewModal('${a.id}')"          title="View">👁️</button>
+          <button class="icon-btn ib-edit"  onclick="openEditModal('${a.id}')"          title="Edit">✏️</button>
+          ${status!=='filed'     ? `<button class="icon-btn ib-filed" onclick="setStatus('${a.id}','filed')"     title="Mark Filed">🗂️</button>` : ''}
+          ${status!=='completed' ? `<button class="icon-btn ib-done"  onclick="setStatus('${a.id}','completed')" title="Complete">✅</button>`    : ''}
+          ${status!=='pending'   ? `<button class="icon-btn ib-pend"  onclick="setStatus('${a.id}','pending')"  title="Pending">⏳</button>`       : ''}
+          <button class="icon-btn ib-del"  onclick="deleteApp('${a.id}')"               title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  window._newIds = [];
+};
+
+window.updateStats = function() {
+  document.getElementById('st-total').textContent     = apps.length;
+  document.getElementById('st-pending').textContent   = apps.filter(a=>a.status==='pending').length;
+  document.getElementById('st-filed').textContent     = apps.filter(a=>a.status==='filed').length;
+  document.getElementById('st-completed').textContent = apps.filter(a=>a.status==='completed').length;
+  document.getElementById('bk-count').textContent     = apps.length;
+};
+
+window.openViewModal = function(id) {
+  const app = apps.find(a => a.id === id);
+  if (!app) return;
+  const fmt = val => {
+    if (!val) return '—';
+    if (val?.toDate) return val.toDate().toLocaleDateString('en-PK', { day:'2-digit', month:'long', year:'numeric' });
+    try { return new Date(val).toLocaleDateString('en-PK', { day:'2-digit', month:'long', year:'numeric' }); }
+    catch(e) { return val; }
+  };
   const badgeMap = { pending:'badge-pending', filed:'badge-filed', completed:'badge-completed' };
   const statusLabel = (app.status||'pending').charAt(0).toUpperCase() + (app.status||'pending').slice(1);
-
   document.getElementById('viewBody').innerHTML = `
     <div class="view-field"><div class="vf-label">FIR Number</div><div class="vf-val fir-num">${app.fir}</div></div>
     <div class="view-field"><div class="vf-label">Date of Arrival</div><div class="vf-val">${fmt(app.doa)}</div></div>
@@ -865,112 +983,27 @@ function openViewModal(id) {
     <div class="view-field"><div class="vf-label">Last Updated</div><div class="vf-val" style="font-size:11px;color:var(--muted)">${fmt(app.updatedAt)}</div></div>
   `;
   document.getElementById('viewOverlay').classList.add('active');
-}
+};
 
-// ─── RENDER ──────────────────────────────────────────────
-function renderTable() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const statusF = document.getElementById('filterStatus').value;
-  const catF    = document.getElementById('filterCategory').value;
-
-  let filtered = apps.filter(a => {
-    const matchS = !statusF || a.status === statusF;
-    const matchC = !catF    || a.category === catF;
-    const matchQ = !search  || [a.fir, a.category, a.description, a.officer, a.station].join(' ').toLowerCase().includes(search);
-    return matchS && matchC && matchQ;
-  });
-
-  const tbody = document.getElementById('tableBody');
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="e-icon">📭</div><p>Koi record nahi mila — "New Application" se add karein</p></div></td></tr>`;
-    return;
-  }
-
-  const badgeMap = { pending:'badge-pending', filed:'badge-filed', completed:'badge-completed' };
-  const fmtDate = iso => { try { return new Date(iso).toLocaleDateString('en-PK',{day:'2-digit',month:'short',year:'numeric'}); } catch(e){ return iso||'—'; } };
-
-  tbody.innerHTML = filtered.map((a, i) => {
-    const status = a.status || 'pending';
-    const label  = status.charAt(0).toUpperCase() + status.slice(1);
-    return `
-    <tr>
-      <td style="color:var(--muted);font-size:11px">${i+1}</td>
-      <td class="fir-num">${a.fir}</td>
-      <td style="color:var(--muted)">${fmtDate(a.doa)}</td>
-      <td><span class="category-tag">${a.category||'—'}</span></td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted)" title="${a.description}">${a.description||'—'}</td>
-      <td><span class="badge ${badgeMap[status]}">${label}</span></td>
-      <td style="color:var(--muted);font-size:11px">${fmtDate(a.createdAt)}</td>
-      <td>
-        <div class="action-btns">
-          <button class="icon-btn ib-view"  onclick="openViewModal('${a.id}')" title="View">👁️</button>
-          <button class="icon-btn ib-edit"  onclick="openEditModal('${a.id}')" title="Edit">✏️</button>
-          ${status!=='filed'     ? `<button class="icon-btn ib-filed" onclick="setStatus('${a.id}','filed')" title="Mark Filed">🗂️</button>` : ''}
-          ${status!=='completed' ? `<button class="icon-btn ib-done"  onclick="setStatus('${a.id}','completed')" title="Complete">✅</button>` : ''}
-          ${status!=='pending'   ? `<button class="icon-btn ib-pend"  onclick="setStatus('${a.id}','pending')" title="Pending">⏳</button>` : ''}
-          <button class="icon-btn ib-del"  onclick="deleteApp('${a.id}')" title="Delete">🗑️</button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function updateStats() {
-  document.getElementById('st-total').textContent     = apps.length;
-  document.getElementById('st-pending').textContent   = apps.filter(a=>a.status==='pending').length;
-  document.getElementById('st-filed').textContent     = apps.filter(a=>a.status==='filed').length;
-  document.getElementById('st-completed').textContent = apps.filter(a=>a.status==='completed').length;
-  document.getElementById('bk-count').textContent     = apps.length;
-}
-
-// ─── BACKUP / RESTORE ───────────────────────────────────
-function openBackupModal() {
+window.openBackupModal = function() {
   document.getElementById('bk-count').textContent = apps.length;
   document.getElementById('backupOverlay').classList.add('active');
-}
+};
 
-function exportJSON() {
-  const data = JSON.stringify({ apps, exportedAt: new Date().toISOString(), version: '1.0' }, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = `FIR_Backup_${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('📥 Backup file downloaded!', 'success');
-}
-
-function importJSON(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!data.apps || !Array.isArray(data.apps)) throw new Error('Invalid format');
-      if (!confirm(`${data.apps.length} records found. Existing data replace hoga. Continue?`)) return;
-      apps = data.apps;
-      saveToStorage();
-      renderTable();
-      updateStats();
-      showToast(`✅ ${apps.length} records restored!`, 'success');
-      closeModal('backupOverlay');
-    } catch(err) {
-      showToast('❌ Invalid backup file!', 'error');
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
-}
-
-function exportCSV() {
+window.exportCSV = function() {
   if (apps.length === 0) { showToast('⚠️ No data to export!', 'error'); return; }
+  const fmtDate = val => {
+    if (!val) return '';
+    if (val?.toDate) return val.toDate().toLocaleDateString('en-PK');
+    try { return new Date(val).toLocaleDateString('en-PK'); } catch(e) { return val; }
+  };
   const headers = ['FIR Number','Date of Arrival','Category','Status','Description','Officer','Station','Remarks','Created On'];
-  const fmt = iso => { try { return new Date(iso).toLocaleDateString('en-PK'); } catch(e){ return iso||''; } };
   const rows = apps.map(a => [
-    a.fir, fmt(a.doa), a.category, a.status, `"${(a.description||'').replace(/"/g,'""')}"`,
-    a.officer, a.station, `"${(a.remarks||'').replace(/"/g,'""')}"`, fmt(a.createdAt)
+    a.fir, fmtDate(a.doa), a.category, a.status,
+    `"${(a.description||'').replace(/"/g,'""')}"`,
+    a.officer, a.station,
+    `"${(a.remarks||'').replace(/"/g,'""')}"`,
+    fmtDate(a.createdAt)
   ]);
   const csv  = [headers, ...rows].map(r => r.join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -981,104 +1014,34 @@ function exportCSV() {
   a.click();
   URL.revokeObjectURL(url);
   showToast('📤 CSV exported!', 'success');
-}
+};
 
-function clearAllData() {
-  if (!confirm('Are you sure? Saara data permanently delete hoga!')) return;
-  apps = [];
-  localStorage.removeItem(STORAGE_KEY);
-  renderTable();
-  updateStats();
-  showToast('🗑️ All data cleared', 'error');
-  closeModal('backupOverlay');
-}
+// ── UTILS ────────────────────────────────────────────────
+window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
 
-// ─── UTILS ───────────────────────────────────────────────
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-function showToast(msg, type='success') {
+window.showToast = function(msg, type='success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = 'toast ' + type;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  t.className = 'toast ' + type + ' show';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+};
+
+function clearForm() {
+  ['f-fir','f-doa','f-cat','f-desc','f-officer','f-station','f-remarks'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('f-status').value = 'pending';
 }
 
-// Close modal on overlay click
+// Close on overlay click
 document.querySelectorAll('.overlay').forEach(el => {
   el.addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('active');
   });
 });
 
-// ─── INIT ────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  loadFromStorage();
-  renderTable();
-  updateStats();
-});
-
-// Extra safety: save on page unload
-window.addEventListener('beforeunload', () => {
-  if (apps.length > 0) saveToStorage();
-});
 </script>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBuIQ6jWPRgZDaS6AQcfZfubVBFf4GpLOg",
-  authDomain: "fir-manager-7b61c.firebaseapp.com",
-  projectId: "fir-manager-7b61c",
-  storageBucket: "fir-manager-7b61c.firebasestorage.app",
-  messagingSenderId: "611991212049",
-  appId: "1:611991212049:web:4f62dd74177df303fc61b0",
-  measurementId: "G-C9M5W0HEBN"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-const ref = doc(db,"fir_data","main");
-
-async function cloudLoad(){
- try{
-   const snap = await getDoc(ref);
-   if(snap.exists()){
-     window.apps = snap.data().apps || [];
-   }else{
-     window.apps = [];
-   }
-   if(window.renderTable) renderTable();
-   if(window.updateStats) updateStats();
- }catch(e){
-   console.log("cloud load error",e);
- }
-}
-
-async function cloudSave(){
- try{
-   await setDoc(ref,{apps:window.apps || []});
- }catch(e){
-   console.log("cloud save error",e);
- }
-}
-
-window.addEventListener("load",()=>{
- setTimeout(cloudLoad,1000);
-});
-
-window.cloudSave = cloudSave;
-
-const oldSave = window.saveToStorage;
-window.saveToStorage = function(){
- if(oldSave) oldSave();
- cloudSave();
-};
-
-</script>
-
 </body>
 </html>
